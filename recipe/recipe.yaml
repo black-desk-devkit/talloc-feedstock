@@ -22,6 +22,7 @@ build:
     - ./configure --prefix="$PREFIX" --disable-python --disable-rpath --disable-rpath-install
     - make -j"$CPU_COUNT" PYTHON="$PYTHON"
     - make install PYTHON="$PYTHON"
+    - if [[ "$(uname -s)" == "Darwin" ]]; then install_name_tool -id "$PREFIX/lib/libtalloc.${{ version }}.dylib" "$PREFIX/lib/libtalloc.${{ version }}.dylib"; fi
 
 requirements:
   build:
