@@ -1,0 +1,31 @@
+--- a/lib/replace/wscript
++++ b/lib/replace/wscript
+@@ -445,8 +445,7 @@
+ 
+     # libbsd on some platforms provides strlcpy and strlcat
+     if not conf.CHECK_FUNCS('strlcpy strlcat'):
+-        if conf.CHECK_FUNCS_IN('strlcpy strlcat', 'bsd', headers='bsd/string.h',
+-                               checklibc=True):
++        if False:
+             strlcpy_in_bsd = True
+     elif conf.env.enable_fuzzing:
+         # Just to complicate it more, some versions of Honggfuzz have
+@@ -460,14 +459,14 @@
+         conf.CHECK_HEADERS('bsd/string.h')
+ 
+     if not conf.CHECK_FUNCS('getpeereid'):
+-        conf.CHECK_FUNCS_IN('getpeereid', 'bsd', headers='sys/types.h bsd/unistd.h')
++        pass
+     if not conf.CHECK_FUNCS_IN('setproctitle', 'setproctitle', headers='setproctitle.h'):
+-        conf.CHECK_FUNCS_IN('setproctitle', 'bsd', headers='sys/types.h bsd/unistd.h')
++        pass
+     if not conf.CHECK_FUNCS('setproctitle_init'):
+-        conf.CHECK_FUNCS_IN('setproctitle_init', 'bsd', headers='sys/types.h bsd/unistd.h')
++        pass
+ 
+     if not conf.CHECK_FUNCS('closefrom'):
+-        conf.CHECK_FUNCS_IN('closefrom', 'bsd', headers='bsd/unistd.h')
++        pass
+ 
+     conf.CHECK_CODE('''
+                 struct ucred cred;

@@ -1,0 +1,67 @@
+context:
+  version: "2.4.2"
+
+package:
+  name: talloc
+  version: ${{ version }}
+
+source:
+  url: https://www.samba.org/ftp/talloc/talloc-${{ version }}.tar.gz
+  sha256: 85ecf9e465e20f98f9950a52e9a411e14320bc555fa257d87697b7e7a9b1d8a6
+  patches:
+    - patches/avoid-system-libbsd.patch
+
+build:
+  number: 0
+  skip: win
+  dynamic_linking:
+    overlinking_behavior: error
+    overdepending_behavior: error
+  script:
+    - export PYTHON="$BUILD_PREFIX/bin/python"
+    - ./configure --prefix="$PREFIX" --disable-python --disable-rpath --disable-rpath-install
+    - make -j"$CPU_COUNT" PYTHON="$PYTHON"
+    - make install PYTHON="$PYTHON"
+    - if [[ "$(uname -s)" == "Darwin" ]]; then install_name_tool -id "$PREFIX/lib/libtalloc.${{ version }}.dylib" "$PREFIX/lib/libtalloc.${{ version }}.dylib"; fi
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - make
+    - python
+  run: []
+
+tests:
+  - script: |
+      python - <<'PY'
+      import ctypes
+      import glob
+      import os
+
+      libraries = glob.glob(os.path.join(os.environ["PREFIX"], "lib", "libtalloc.*"))
+      assert libraries, "libtalloc was not installed"
+      library = ctypes.CDLL(libraries[0])
+      assert library.talloc_version_major() == 2
+      assert library.talloc_version_minor() == 4
+      PY
+    requirements:
+      run:
+        - python
+  - package_contents:
+      lib:
+        - talloc
+      include:
+        - talloc.h
+      files:
+        - lib/pkgconfig/talloc.pc
+
+about:
+  homepage: https://talloc.samba.org/
+  summary: A hierarchical pool-based memory allocator with destructors.
+  license: LGPL-3.0-or-later
+  license_file: talloc.h
+  repository: https://gitlab.com/samba-team/samba/-/tree/master/lib/talloc
+
+extra:
+  recipe-maintainers:
+    - black-desk
